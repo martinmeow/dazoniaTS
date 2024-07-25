@@ -1,5 +1,8 @@
 <template>
   <q-page class="row items-center justify-evenly">
+    Server time: {{ time }}
+    <br>
+    Server admin: {{ person?.name }}
     <example-component
       title="Example component"
       active
@@ -13,6 +16,7 @@
 import { ref } from 'vue';
 import { Todo, Meta } from 'components/models';
 import ExampleComponent from 'components/ExampleComponent.vue';
+import { api } from 'src/boot/axios';
 
 defineOptions({
   name: 'IndexPage'
@@ -44,4 +48,26 @@ const todos = ref<Todo[]>([
 const meta = ref<Meta>({
   totalCount: 1200
 });
+
+const time = ref('loading time...');
+const person = ref<Person>({name: 'unknown'});
+
+api.get<string>('/time').then(({data})=>{  
+    time.value = data;
+}).catch(reason=>{
+  time.value = 'Failed to fetch time';
+  console.error(reason);
+})
+
+api.get<Person>('/person').then(({data})=>{
+    person.value = data;
+}).catch(reason=>{
+  person.value = {name: 'error'}
+  console.error(reason);
+})
+
+type Person = {
+  name: string;
+}
+
 </script>
